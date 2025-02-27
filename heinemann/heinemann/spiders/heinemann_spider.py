@@ -4,7 +4,7 @@ from heinemann.items import HeinemannItem
 class HeinemannSpider(scrapy.Spider):
     name = "heinemannspider"
 
-    start_urls = ["https://www.heinemann.com.au/en/sydt1/"]
+    start_urls = ["https://www.heinemann.com.au/en/sydt1/", "https://www.heinemann-shop.com/en/global/", "https://www.taxfree-heinemann.dk/en/global/"]
 
     def parse(self, response):
         brands = response.css(".c-header-navigation__col-item a::attr(href)").getall()
