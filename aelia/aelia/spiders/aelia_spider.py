@@ -6,7 +6,7 @@ from aelia.items import AeliaItem
 class AeliaSpider(scrapy.Spider):
     name = "aeliaspider"
 
-    start_urls = ["https://www.aeliadutyfree.co.nz/auckland/all-brands"]
+    start_urls = ["https://www.aeliadutyfree.co.nz/auckland/all-brands", "https://www.aeliadutyfree.co.nz/christchurch/all-brands", "https://www.aeliadutyfree.co.nz/queenstown/all-brands", "https://www.aeliadutyfree.com.au/adelaide/all-brands", "https://www.aeliadutyfree.com.au/cairns/all-brands"]
 
     def parse(self, response):
         brands = response.css("div.brands-item a")
