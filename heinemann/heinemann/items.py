@@ -17,4 +17,4 @@ class HeinemannItem(scrapy.Item):
     stock_availability = scrapy.Field()
     description = scrapy.Field()
     primary_image = scrapy.Field()
-    product_images = scrapy.Field()
+    images = scrapy.Field()

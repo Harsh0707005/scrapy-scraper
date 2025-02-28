@@ -46,6 +46,6 @@ class HeinemannSpider(scrapy.Spider):
             primary_image_url = response.css("div.c-product-preview__slide img::attr(src)").get()
             item["primary_image"] = response.urljoin(primary_image_url) if primary_image_url else ""
 
-            item["product_images"] = [response.urljoin(img) for img in response.css("div.c-product-preview__thumbnails img::attr(src)").getall()]
+            item["images"] = [response.urljoin(img) for img in response.css("div.c-product-preview__thumbnails img::attr(src)").getall()]
 
             yield item
