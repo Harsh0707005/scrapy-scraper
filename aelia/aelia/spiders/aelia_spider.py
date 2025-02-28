@@ -38,7 +38,7 @@ class AeliaSpider(scrapy.Spider):
         item["product_url"] = response.url
         item["product_name"] = (response.css("h1.page-title span::text").get() or "").strip()
         item["sku_id"] = (response.css("div.sku div::text").get() or "").strip()
-        item["description"] = (response.css("div.description div.value div::text").get() or "").strip()
+        item["description"] = (" ".join(response.css("div.description div.value *::text").getall())).strip()
         item["stock_availability"] = (response.css("div.product-info-main div.stock span::text").get() or "").strip()
         item["price"] = (response.css("div.product-info-price span.price::text").get() or "").strip()
         item["image"] = (response.css("div.gallery-placeholder img::attr(src)").get() or "").strip()

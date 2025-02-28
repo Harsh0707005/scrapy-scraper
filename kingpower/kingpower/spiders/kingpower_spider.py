@@ -47,7 +47,7 @@ class KingpowerSpider(scrapy.Spider):
 
         item["name"] = (response.css("h4#product-detail-title-product-name::text").get() or "").strip()
 
-        item["description"] = (response.css("div#product-detail-long-description-paragraph::text").get() or "").strip()
+        item["description"] = " ".join(response.css("div#product-detail-long-description-paragraph *::text").getall()).strip()
 
         item["categories"] = (response.css("div.MuiBreadcrumb-breadcrumb span::text").getall())[1:]
 
