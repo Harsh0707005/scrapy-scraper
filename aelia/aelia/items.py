@@ -15,4 +15,4 @@ class AeliaItem(scrapy.Item):
     description = scrapy.Field()
     stock_availability = scrapy.Field()
     price = scrapy.Field()
-    image = scrapy.Field()
+    primary_image = scrapy.Field()
