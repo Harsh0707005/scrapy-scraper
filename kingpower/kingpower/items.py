@@ -10,7 +10,7 @@ class KingpowerItem(scrapy.Item):
     brand_name = scrapy.Field()
     brand_url = scrapy.Field()
     product_url = scrapy.Field()
-    name = scrapy.Field()
+    product_name = scrapy.Field()
     description = scrapy.Field()
     categories = scrapy.Field()
     sku_id = scrapy.Field()
