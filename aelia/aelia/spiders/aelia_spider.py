@@ -41,6 +41,6 @@ class AeliaSpider(scrapy.Spider):
         item["description"] = (" ".join(response.css("div.description div.value *::text").getall())).strip()
         item["stock_availability"] = (response.css("div.product-info-main div.stock span::text").get() or "").strip()
         item["price"] = (response.css("div.product-info-price span.price::text").get() or "").strip()
-        item["image"] = (response.css("div.gallery-placeholder img::attr(src)").get() or "").strip()
+        item["primary_image"] = (response.css("div.gallery-placeholder img::attr(src)").get() or "").strip()
 
         yield item
