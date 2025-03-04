@@ -39,24 +39,49 @@ class KingpowerSpider(scrapy.Spider):
 
         item = KingpowerItem()
 
-        item["brand_name"] = response.meta.get("brand_name", "")
-        
-        item["brand_url"] = response.meta.get("brand_url", "")
-
+        item["site_name"] = "Kingpower"
         item["product_url"] = response.url
-
+        item["product_id"] = response.url.split("/")[-1]
         item["product_name"] = (response.css("h4#product-detail-title-product-name::text").get() or "").strip()
+        item["product_unique_id"] = (response.css("span#product-detail-sku-number::text").get() or "").strip()
+        item["product_brand_name"] = response.meta.get("brand_name", "")
+        item["product_description"] = " ".join(response.css("div#product-detail-long-description-paragraph *::text").getall()).strip()
 
-        item["description"] = " ".join(response.css("div#product-detail-long-description-paragraph *::text").getall()).strip()
+        item["product_price"] = (response.css("span#product-detail-label-product-price::text").get() or "").strip()
+        
+        # primary_image_url = response.css("div.c-product-preview__slide img::attr(src)").get()
+        item["product_images"] = response.css("div.slick-slide img::attr(src)").getall()
+        
+        item["product_country"] = {
+            "country_id": "36",
+            "country_name": "Australia",
+            "country_code": "AU",
+            "currency": "AUD",
+            "currency_symbol": "$",
+            "mobile_code": "+61"
+        }
+        
+        item["product_category"] = "Duty Free"
+        item["product_subcategory"] = "fttb"
 
-        item["categories"] = (response.css("div.MuiBreadcrumb-breadcrumb span::text").getall())[1:]
+        # item["brand_name"] = response.meta.get("brand_name", "")
+        
+        # item["brand_url"] = response.meta.get("brand_url", "")
 
-        item["sku_id"] = (response.css("span#product-detail-sku-number::text").getall())[-1].strip()
+        # item["product_url"] = response.url
 
-        item["price"] = (response.css("span#product-detail-label-product-price::text").get() or "").strip()
+        # item["product_name"] = (response.css("h4#product-detail-title-product-name::text").get() or "").strip()
 
-        item["primary_image"] = (response.css("img#product-slider-image-1::attr(src)").get() or "").strip()
+        # item["description"] = " ".join(response.css("div#product-detail-long-description-paragraph *::text").getall()).strip()
 
-        item["images"] = response.css("div.slick-slide img::attr(src)").getall()
+        # item["categories"] = (response.css("div.MuiBreadcrumb-breadcrumb span::text").getall())[1:]
+
+        # item["sku_id"] = (response.css("span#product-detail-sku-number::text").getall())[-1].strip()
+
+        # item["price"] = (response.css("span#product-detail-label-product-price::text").get() or "").strip()
+
+        # item["primary_image"] = (response.css("img#product-slider-image-1::attr(src)").get() or "").strip()
+
+        # item["images"] = response.css("div.slick-slide img::attr(src)").getall()
 
         yield item
