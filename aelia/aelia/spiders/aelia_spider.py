@@ -2,6 +2,8 @@ import scrapy
 from pathlib import Path
 from scrapy.selector import Selector
 from aelia.items import AeliaItem
+from urllib.parse import urlparse
+import json
 
 class AeliaSpider(scrapy.Spider):
     name = "aeliaspider"
@@ -33,14 +35,32 @@ class AeliaSpider(scrapy.Spider):
     def product_page(self, response):
         item = AeliaItem()
 
-        item["brand_name"] = response.meta.get("brand_name", "").strip()
-        item["brand_url"] = response.meta.get("brand_url", "").strip()
-        item["product_url"] = response.url
+        item["site_name"] = "Aelia"
+        item["product_id"] = response.url[response.url.rfind("/")+1:-5]
         item["product_name"] = (response.css("h1.page-title span::text").get() or "").strip()
-        item["sku_id"] = (response.css("div.sku div::text").get() or "").strip()
-        item["description"] = (" ".join(response.css("div.description div.value *::text").getall())).strip()
-        item["stock_availability"] = (response.css("div.product-info-main div.stock span::text").get() or "").strip()
-        item["price"] = (response.css("div.product-info-price span.price::text").get() or "").strip()
-        item["primary_image"] = (response.css("div.gallery-placeholder img::attr(src)").get() or "").strip()
+        item["product_unique_id"] = (response.css("div.sku div::text").get() or "").strip()
+        item["product_brand_name"] = response.meta.get("brand_name", "").strip()
+        item["product_description"] = (" ".join(response.css("div.description div.value *::text").getall())).strip()
+        item["product_price"] = (response.css("div.product-info-price span.price::text").get() or "").strip()
+        item["product_url"] = response.url
+        item["product_images"] = [(response.css("div.gallery-placeholder img::attr(src)").get() or "").strip()]
+
+        country_code = urlparse(response.url).netloc.split(".")[-1]
+
+        with open("country_data.json", "r") as f:
+            countries = json.load(f)["countries"]
+            for country in countries:
+                if country["country_code"].lower()==country_code.lower():
+                    country_data = country
+        
+        item["product_country"] = country_data
+
+        item["product_category"] = "Duty Free"
+        item["product_subcategory"] = "fttb"
+
+
+
+        # item["brand_url"] = response.meta.get("brand_url", "").strip()
+        # item["stock_availability"] = (response.css("div.product-info-main div.stock span::text").get() or "").strip()
 
         yield item
