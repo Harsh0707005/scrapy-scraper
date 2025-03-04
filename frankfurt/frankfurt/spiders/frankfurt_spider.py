@@ -27,18 +27,34 @@ class FrankfurtSpider(scrapy.Spider):
     def product_page(self, response):
         item = FrankfurtItem()
 
+        item["site_name"] = "Frankfurt Airport"
+        item["product_id"] = response.url[response.url.rfind("/")+1:]
         item["product_name"] = (response.css("div.ProductHeader_productHeader__JqwPV > h1::text").get() or "").strip().encode("ascii", "ignore").decode()
-        item["brand_name"] = (response.css("span.ProductHeader_brand__yOd6d > a::text").get() or "").strip().encode("ascii", "ignore").decode()
-        item["brand_url"] = response.urljoin(response.css("span.ProductHeader_brand__yOd6d > a::attr(href)").get())
-        item["retailer_name"] = (response.css("span.ProductHeader_retailer__kTw1D > a::text").get() or "").strip().encode("ascii", "ignore").decode()
-        item["retailer_url"] = response.urljoin(response.css("span.ProductHeader_retailer__kTw1D > a::attr(href)").get())
-        item["price"] = (response.css("div.ProductPriceRaw_actualPrice__U7PIE::text").get() or "").strip()
-        item["price_per_quantity"] = " ".join([chunk.strip() for chunk in response.css("div.ProductActiveBasePrice_activeBasePrice__4KHlO *::text").getall()])
-        item["description"] = response.css("div.ProductDescription_description__vcOGj *::text").get(default="").strip()
+        item["product_unique_id"] = ""
+        item["product_brand_name"] = (response.css("span.ProductHeader_brand__yOd6d > a::text").get() or "").strip().encode("ascii", "ignore").decode()
+        item["product_description"] = response.css("div.ProductDescription_description__vcOGj *::text").get(default="").strip()
+        item["product_price"] = (response.css("div.ProductPriceRaw_actualPrice__U7PIE::text").get() or "").strip()
+        item["product_url"] = response.url
+        item["product_images"] = [response.css("img.ProductImage_image__8fRzp::attr(src)").get(default="")]
+        item["product_country"] = dict({
+            "country_id": "83",
+            "country_name": "Germany",
+            "country_code": "DE",
+            "currency": "EUR",
+            "currency_symbol": "€",
+            "mobile_code": "+49"
+        })
+        item["product_category"] = "Duty Free"
+        item["product_subcategory"] = "fttb"
 
-        additional_dt = (response.css("dl.ProductAttributes_productAttributes__ERdVr > dt::text").getall())
-        additional_dd = response.css("dd.ProductAttributes_label__e7iXm *::text").getall()
+        # item["brand_url"] = response.urljoin(response.css("span.ProductHeader_brand__yOd6d > a::attr(href)").get())
+        # item["retailer_name"] = (response.css("span.ProductHeader_retailer__kTw1D > a::text").get() or "").strip().encode("ascii", "ignore").decode()
+        # item["retailer_url"] = response.urljoin(response.css("span.ProductHeader_retailer__kTw1D > a::attr(href)").get())
+        # item["price_per_quantity"] = " ".join([chunk.strip() for chunk in response.css("div.ProductActiveBasePrice_activeBasePrice__4KHlO *::text").getall()])
 
-        item["additional_information"] = json.dumps(dict(zip(additional_dt, additional_dd)), indent=4)
+        # additional_dt = (response.css("dl.ProductAttributes_productAttributes__ERdVr > dt::text").getall())
+        # additional_dd = response.css("dd.ProductAttributes_label__e7iXm *::text").getall()
+
+        # item["additional_information"] = json.dumps(dict(zip(additional_dt, additional_dd)), indent=4)
 
         yield item
