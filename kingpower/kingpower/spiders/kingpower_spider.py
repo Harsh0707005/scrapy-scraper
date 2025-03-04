@@ -53,12 +53,12 @@ class KingpowerSpider(scrapy.Spider):
         item["product_images"] = response.css("div.slick-slide img::attr(src)").getall()
         
         item["product_country"] = {
-            "country_id": "36",
-            "country_name": "Australia",
-            "country_code": "AU",
-            "currency": "AUD",
-            "currency_symbol": "$",
-            "mobile_code": "+61"
+            "country_id": "222",
+            "country_name": "Thailand",
+            "country_code": "TH",
+            "currency": "THB",
+            "currency_symbol": "฿",
+            "mobile_code": "+66"
         }
         
         item["product_category"] = "Duty Free"
