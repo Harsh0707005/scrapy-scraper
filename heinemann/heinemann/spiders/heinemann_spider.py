@@ -1,5 +1,7 @@
 import scrapy
 from heinemann.items import HeinemannItem
+import json
+from urllib.parse import urlparse
 
 class HeinemannSpider(scrapy.Spider):
     name = "heinemannspider"
@@ -33,19 +35,53 @@ class HeinemannSpider(scrapy.Spider):
     def product_page(self, response):
             item = HeinemannItem()
 
+            item["site_name"] = "Heinemann"
             item["product_url"] = response.url
-            item["brand_name"] = response.css("div.c-order-card__header h2.c-order-card__subline a::text").get() or ""
-            item["brand_url"] = response.urljoin(response.css("div.c-order-card__header h2.c-order-card__subline a::attr(href)").get() or "")
+            item["product_id"] = response.url.split("/")[-1]
             item["product_name"] = (response.css(".c-order-card__headline::text").get() or "").strip()
-            item["quantity"] = response.css("div#product-order-card>p::text").get() or ""
-            item["price"] = (response.css("div#product-order-card p.c-price::text").get() or "").strip()
-            item["price_per_quantity"] = (response.css("div#product-order-card p.c-price-box__reference::text").get() or "").strip()
-            item["stock_availability"] = (response.css("p.c-stock-display>span::text").get() or "").strip()
-            item["description"] = (response.css("div.c-accordion__content p:nth-of-type(2)::text").get() or "").strip()
+            item["product_unique_id"] = ""
+            item["product_brand_name"] = response.css("div.c-order-card__header h2.c-order-card__subline a::text").get() or ""
+            item["product_description"] = (response.css("div.c-accordion__content p:nth-of-type(2)::text").get() or "").strip()
+            item["product_price"] = (response.css("div#product-order-card p.c-price::text").get() or "").strip()
+            item["product_images"] = [response.urljoin(img) for img in response.css("div.c-product-preview__thumbnails img::attr(src)").getall()]
+            primary_image_url = response.css("div.c-product-preview__slide img::attr(src)").get(default="")
+            if primary_image_url!="":
+                item["product_images"].insert(0, response.urljoin(primary_image_url))
+            country_code = urlparse(response.url).netloc.split(".")[-1]
 
-            primary_image_url = response.css("div.c-product-preview__slide img::attr(src)").get()
-            item["primary_image"] = response.urljoin(primary_image_url) if primary_image_url else ""
+            with open("country_data.json", "r") as f:
+                countries = json.load(f)["countries"]
+                for country in countries:
+                    if country["country_code"].lower()==country_code.lower():
+                        country_data = country
+            
+            if len(country_data)==0:
+                country_data = dict({
+            "country_id": "239",
+            "country_name": "United States",
+            "country_code": "US",
+            "currency": "USD",
+            "currency_symbol": "$",
+            "mobile_code": "+1"
+        })
+            
+            item["product_country"] = country_data
+            item["product_category"] = "Duty Free"
+            item["product_subcategory"] = "fttb"    
 
-            item["images"] = [response.urljoin(img) for img in response.css("div.c-product-preview__thumbnails img::attr(src)").getall()]
+            # item["product_url"] = response.url
+            # item["brand_name"] = response.css("div.c-order-card__header h2.c-order-card__subline a::text").get() or ""
+            # item["brand_url"] = response.urljoin(response.css("div.c-order-card__header h2.c-order-card__subline a::attr(href)").get() or "")
+            # item["product_name"] = (response.css(".c-order-card__headline::text").get() or "").strip()
+            # item["quantity"] = response.css("div#product-order-card>p::text").get() or ""
+            # item["price"] = (response.css("div#product-order-card p.c-price::text").get() or "").strip()
+            # item["price_per_quantity"] = (response.css("div#product-order-card p.c-price-box__reference::text").get() or "").strip()
+            # item["stock_availability"] = (response.css("p.c-stock-display>span::text").get() or "").strip()
+            # item["description"] = (response.css("div.c-accordion__content p:nth-of-type(2)::text").get() or "").strip()
+
+            # primary_image_url = response.css("div.c-product-preview__slide img::attr(src)").get()
+            # item["primary_image"] = response.urljoin(primary_image_url) if primary_image_url else ""
+
+            # item["images"] = [response.urljoin(img) for img in response.css("div.c-product-preview__thumbnails img::attr(src)").getall()]
 
             yield item
